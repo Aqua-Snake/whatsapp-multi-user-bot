@@ -1,0 +1,42 @@
+<!-- web/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Pair</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2em; }
+    #qr { margin-top: 20px; }
+  </style>
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>WhatsApp Web QR Pairing</h1>
+  <input id="sessionId" placeholder="Enter your number (e.g. 94712345678)" />
+  <button onclick="startSession()">Start</button>
+  <div id="qr"></div>
+  <div id="status"></div>
+
+  <script>
+    function startSession() {
+      const id = document.getElementById('sessionId').value;
+      if (!id) return alert('Enter a number');
+      window.location.href = `/start-session/${id}`;
+    }
+  </script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = window.location.pathname.split('/').pop();
+    if (id) {
+      const socket = io({ query: { id } });
+      socket.on('qr', data => {
+        document.getElementById('qr').innerHTML = `<img src="${data}" width="250" />`;
+      });
+      socket.on('success', msg => {
+        document.getElementById('status').innerText = msg;
+      });
+    }
+  </script>
+</body>
+</html>
